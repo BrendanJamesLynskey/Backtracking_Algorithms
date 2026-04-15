@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backtracking Algorithms</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --amber:  #f5a623;
+    --green:  #4ecb8d;
+    --purple: #a78bfa;
+    --blue:   #60a5fa;
+    --red:    #f87171;
+    --bg:     #0a0a0f;
+    --bg2:    #10101a;
+    --bg3:    #181824;
+    --border: #2a2a3a;
+    --text:   #e8e8f0;
+    --muted:  #8888a8;
+  }
+
+  .reveal-viewport { background: var(--bg); }
+  .reveal .slides section { background: transparent; }
+
+  .reveal { font-family: 'DM Sans', sans-serif; color: var(--text); }
+  .reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+  .reveal h1 { font-size: 1.6em; color: var(--amber); line-height: 1.1; }
+  .reveal h2 { font-size: 1.1em; color: var(--amber); margin-bottom: .2em; }
+  .reveal h3 { font-size: .78em; color: var(--green); margin-bottom: .15em; }
+  .reveal p  { font-size: .56em; line-height: 1.45; color: var(--text); }
+  .reveal li { font-size: .54em; line-height: 1.45; margin-bottom: .1em; }
+  .reveal code { font-family: 'JetBrains Mono', monospace; font-size: .72em; }
+  .reveal pre  { box-shadow: none; background: var(--bg3); border: 1px solid var(--border);
+                 border-radius: 6px; padding: .3em .5em; margin: .25em 0; }
+  .reveal pre code { font-size: .52em; line-height: 1.35; background: transparent; color: #cdd6f4; }
+
+  /* ── slide chrome ── */
+  .slide-hdr {
+    display: flex; align-items: center; gap: .4em;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: .2em; margin-bottom: .3em;
+  }
+  .slide-hdr .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .42em; font-weight: 500;
+    color: var(--bg); background: var(--amber);
+    padding: .1em .4em; border-radius: 3px;
+    letter-spacing: .04em;
+  }
+  .slide-hdr h2 { margin: 0; font-size: .95em; }
+
+  /* ── two-column ── */
+  .cols   { display: grid; gap: .5em; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-6040 { grid-template-columns: 6fr 4fr; }
+  .cols-4060 { grid-template-columns: 4fr 6fr; }
+
+  /* ── cards ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: .35em .6em;
+  }
+  .card.amber { border-left: 3px solid var(--amber); }
+  .card.green { border-left: 3px solid var(--green); }
+  .card.purple{ border-left: 3px solid var(--purple); }
+  .card.blue  { border-left: 3px solid var(--blue); }
+  .card.red   { border-left: 3px solid var(--red); }
+  .card h3 { font-size: .64em; margin: 0 0 .12em; }
+  .card p  { font-size: .52em; margin: 0; color: #b8b8d0; }
+  .card ul { margin: 0; padding-left: 1em; }
+  .card li { font-size: .52em; color: #b8b8d0; margin-bottom: .02em; }
+
+  /* ── table ── */
+  .reveal table { width: 100%; border-collapse: collapse; font-size: .5em; }
+  .reveal table th { background: var(--bg3); color: var(--amber); font-weight: 600;
+                     padding: .2em .4em; border: 1px solid var(--border); text-align: left; }
+  .reveal table td { padding: .18em .4em; border: 1px solid var(--border); color: #ccc; }
+  .reveal table tr:nth-child(even) td { background: #0e0e18; }
+
+  /* ── accent spans ── */
+  .a  { color: var(--amber); font-weight: 600; }
+  .g  { color: var(--green); font-weight: 600; }
+  .p  { color: var(--purple); font-weight: 600; }
+  .b  { color: var(--blue); font-weight: 600; }
+  .r  { color: var(--red); font-weight: 600; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── SVG graph diagrams ── */
+  svg.diagram { display: block; margin: 0 auto; overflow: visible; }
+
+  /* ── pill badges ── */
+  .pill {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: .44em; padding: .08em .4em; border-radius: 99px;
+    border: 1px solid; margin: 0 .08em;
+  }
+  .pill.amber { color: var(--amber); border-color: var(--amber); }
+  .pill.green { color: var(--green); border-color: var(--green); }
+  .pill.purple{ color: var(--purple); border-color: var(--purple); }
+  .pill.blue  { color: var(--blue); border-color: var(--blue); }
+
+  /* ── footer — hidden ── */
+  .reveal .slide-footer { display: none; }
+  /* title slide special */
+  .title-slide h1 { font-size: 1.8em; }
+  .title-slide .subtitle {
+    font-size: .7em; color: var(--green); font-family: 'DM Sans', sans-serif;
+    font-weight: 300; letter-spacing: .04em; margin: .3em 0 .6em;
+  }
+  .title-slide .meta { font-size: .48em; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── super-step animator ── */
+  .ss-row {
+    display: flex; gap: .25em; align-items: center;
+    margin: .1em 0; font-size: .55em; font-family: 'JetBrains Mono', monospace;
+  }
+  .ss-node {
+    padding: .2em .55em; border-radius: 5px; font-size: .9em;
+    background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+  }
+  .ss-node.active { background: #1a2a1a; border-color: var(--green); color: var(--green); }
+  .ss-node.done   { background: #1a1a2a; border-color: var(--purple); color: var(--purple); }
+  .ss-arrow { color: var(--amber); }
+  .ss-label { font-size: .8em; color: var(--muted); margin-left: .3em; }
+
+  /* reduce default margins */
+  .reveal ul, .reveal ol { margin: .15em 0 .15em 1em; }
+.reveal .slides > section { display: flex !important; flex-direction: column !important; overflow-y: auto !important; align-items: stretch !important; justify-content: flex-start !important; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 01 — Title
+══════════════════════════════════════════════════════════════════ -->
+<section class="title-slide" data-background-color="#0a0a0f">
+  <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">COMPUTER SCIENCE FUNDAMENTALS SERIES</div>
+  <h1>Backtracking<br>Algorithms</h1>
+  <div class="subtitle">
+    State space trees · N-Queens · Sudoku ·<br>
+    Constraint satisfaction · Pruning · Branch and bound
+  </div>
+  <div style="width:60px; height:3px; background:var(--amber); margin-bottom:1.4em;"></div>
+  <div class="meta">
+    Mid-level software engineer track &nbsp;·&nbsp; 20 slides
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 02 — What Is Backtracking?
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">02</span>
+    <h2>What Is Backtracking?</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>The paradigm</h3>
+      <p>Backtracking is a systematic method for exploring all potential solutions by building candidates <strong style="color:var(--amber)">incrementally</strong> and <strong style="color:var(--red)">abandoning</strong> a candidate as soon as it cannot lead to a valid solution.</p>
+      <h3 style="margin-top:.4em">Core idea</h3>
+      <ul>
+        <li>Build a solution one decision at a time</li>
+        <li>At each step, check constraints — if violated, <strong style="color:var(--red)">prune</strong> this branch</li>
+        <li>If a dead end is reached, undo the last decision and try the next option</li>
+        <li>If all options exhausted at a level, backtrack further</li>
+      </ul>
+    </div>
+    <div>
+      <h3>When to use backtracking</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:0.3em">
+        <div style="display:flex; align-items:flex-start; gap:.5em; background:var(--bg3); border-radius:6px; padding:.35em .6em; font-size:.52em; border:1px solid var(--border);">
+          <span style="font-family:'Playfair Display',serif; font-size:1.4em; font-weight:700; min-width:0.9em; line-height:1; color:var(--amber)">&#x1F9E9;</span>
+          <span style="color:var(--text); line-height:1.5"><strong style="color:var(--amber)">Constraint satisfaction</strong> — Sudoku, crosswords, scheduling</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:.5em; background:var(--bg3); border-radius:6px; padding:.35em .6em; font-size:.52em; border:1px solid var(--border);">
+          <span style="font-family:'Playfair Display',serif; font-size:1.4em; font-weight:700; min-width:0.9em; line-height:1; color:var(--green)">&#x1F500;</span>
+          <span style="color:var(--text); line-height:1.5"><strong style="color:var(--amber)">Combinatorial search</strong> — permutations, combinations, subsets</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:.5em; background:var(--bg3); border-radius:6px; padding:.35em .6em; font-size:.52em; border:1px solid var(--border);">
+          <span style="font-family:'Playfair Display',serif; font-size:1.4em; font-weight:700; min-width:0.9em; line-height:1; color:var(--purple)">&#x265B;</span>
+          <span style="color:var(--text); line-height:1.5"><strong style="color:var(--amber)">Puzzle solving</strong> — N-Queens, Sudoku, mazes</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:.5em; background:var(--bg3); border-radius:6px; padding:.35em .6em; font-size:.52em; border:1px solid var(--border);">
+          <span style="font-family:'Playfair Display',serif; font-size:1.4em; font-weight:700; min-width:0.9em; line-height:1; color:var(--blue)">&#x1F4C8;</span>
+          <span style="color:var(--text); line-height:1.5"><strong style="color:var(--amber)">Graph problems</strong> — colouring, Hamiltonian paths</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:.5em; background:var(--bg3); border-radius:6px; padding:.35em .6em; font-size:.52em; border:1px solid var(--border);">
+          <span style="font-family:'Playfair Display',serif; font-size:1.4em; font-weight:700; min-width:0.9em; line-height:1; color:var(--red)">&#x1F3AF;</span>
+          <span style="color:var(--text); line-height:1.5"><strong style="color:var(--amber)">Optimisation</strong> — with branch and bound extension</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card amber" style="margin-top:0.5em">
+    <p><strong style="color:var(--amber)">Key insight:</strong> backtracking turns exponential brute force into something practical by cutting off invalid branches early. The earlier you prune, the faster the search.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 03 — State Space Trees
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">03</span>
+    <h2>State Space Trees</h2>
+  </div>
+  <div class="cols cols-6040">
+    <div>
+      <p>A <strong style="color:var(--amber)">state space tree</strong> is a rooted tree representing all possible states of a backtracking algorithm. Each node is a partial solution; edges represent decisions.</p>
+      <div style="display:flex; gap:0.6em; align-items:baseline; font-size:0.52em; margin:0.2em 0;"><span style="font-family:'JetBrains Mono',monospace; color:var(--amber); min-width:9em; font-size:0.9em;">Root</span><span style="color:var(--text)">Empty solution — no decisions made</span></div>
+      <div style="display:flex; gap:0.6em; align-items:baseline; font-size:0.52em; margin:0.2em 0;"><span style="font-family:'JetBrains Mono',monospace; color:var(--amber); min-width:9em; font-size:0.9em;">Internal nodes</span><span style="color:var(--text)">Partial solutions with some decisions made</span></div>
+      <div style="display:flex; gap:0.6em; align-items:baseline; font-size:0.52em; margin:0.2em 0;"><span style="font-family:'JetBrains Mono',monospace; color:var(--amber); min-width:9em; font-size:0.9em;">Leaf nodes</span><span style="color:var(--text)">Complete candidates — valid solutions or dead ends</span></div>
+      <div style="display:flex; gap:0.6em; align-items:baseline; font-size:0.52em; margin:0.2em 0;"><span style="font-family:'JetBrains Mono',monospace; color:var(--amber); min-width:9em; font-size:0.9em;">Pruned branches</span><span style="color:var(--text)">Subtrees skipped because constraints already violated</span></div>
+      <div class="card blue" style="margin-top:0.8em">
+        <p>Without pruning: tree has <code>b<sup>d</sup></code> leaves (b = branching factor, d = depth). With pruning: many subtrees are never explored.</p>
+      </div>
+    </div>
+    <div>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:.5em;">
+        <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <!-- Binary subsets of {a,b,c} — state space tree -->
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a78bfa"/>
+            </marker>
+          </defs>
+          <!-- Level 0: root {} -->
+          <rect x="130" y="10" width="60" height="24" rx="5" fill="#1a1a28" stroke="#f5a623" stroke-width="1.5"/>
+          <text x="160" y="27" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#f5a623">{}</text>
+          <!-- Level 1 -->
+          <line x1="145" y1="34" x2="80" y2="65" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="175" y1="34" x2="240" y2="65" stroke="#a78bfa" stroke-width="1"/>
+          <text x="105" y="50" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4ecb8d">+a</text>
+          <text x="205" y="50" font-family="'JetBrains Mono',monospace" font-size="8" fill="#f87171">-a</text>
+          <rect x="50" y="65" width="60" height="24" rx="5" fill="#1a1a28" stroke="#4ecb8d" stroke-width="1"/>
+          <text x="80" y="82" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#4ecb8d">{a}</text>
+          <rect x="210" y="65" width="60" height="24" rx="5" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="240" y="82" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8e8f0">{}</text>
+          <!-- Level 2 from {a} -->
+          <line x1="65" y1="89" x2="35" y2="120" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="95" y1="89" x2="125" y2="120" stroke="#a78bfa" stroke-width="1"/>
+          <text x="42" y="105" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4ecb8d">+b</text>
+          <text x="110" y="105" font-family="'JetBrains Mono',monospace" font-size="8" fill="#f87171">-b</text>
+          <rect x="5" y="120" width="60" height="24" rx="5" fill="#1a1a28" stroke="#4ecb8d" stroke-width="1"/>
+          <text x="35" y="137" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#4ecb8d">{a,b}</text>
+          <rect x="100" y="120" width="50" height="24" rx="5" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="125" y="137" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8e8f0">{a}</text>
+          <!-- Level 2 from {} -->
+          <line x1="225" y1="89" x2="195" y2="120" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="255" y1="89" x2="285" y2="120" stroke="#a78bfa" stroke-width="1"/>
+          <rect x="170" y="120" width="50" height="24" rx="5" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="195" y="137" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8e8f0">{b}</text>
+          <rect x="265" y="120" width="50" height="24" rx="5" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="290" y="137" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8e8f0">{}</text>
+          <!-- Level 3 leaves (from {a,b}) -->
+          <line x1="20" y1="144" x2="10" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="50" y1="144" x2="60" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <rect x="-10" y="170" width="42" height="22" rx="4" fill="#1a2a1a" stroke="#4ecb8d" stroke-width="1"/>
+          <text x="11" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#4ecb8d">a,b,c</text>
+          <rect x="42" y="170" width="36" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="60" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">a,b</text>
+          <!-- Level 3 leaves (from {a}) -->
+          <line x1="115" y1="144" x2="105" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="135" y1="144" x2="145" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <rect x="86" y="170" width="36" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="104" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">a,c</text>
+          <rect x="130" y="170" width="30" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="145" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">a</text>
+          <!-- Level 3 leaves (from {b}) -->
+          <line x1="185" y1="144" x2="178" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="205" y1="144" x2="213" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <rect x="161" y="170" width="34" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="178" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">b,c</text>
+          <rect x="200" y="170" width="26" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="213" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">b</text>
+          <!-- Level 3 leaves (from {}) -->
+          <line x1="280" y1="144" x2="272" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <line x1="300" y1="144" x2="308" y2="170" stroke="#a78bfa" stroke-width="1"/>
+          <rect x="256" y="170" width="32" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="272" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">c</text>
+          <rect x="296" y="170" width="26" height="22" rx="4" fill="#1a1a28" stroke="#2a2a3a"/>
+          <text x="309" y="185" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e8e8f0">{}</text>
+          <!-- Legend -->
+          <rect x="10" y="210" width="300" height="40" rx="4" fill="#111118" stroke="#2a2a3a"/>
+          <text x="20" y="226" font-family="'DM Sans',sans-serif" font-size="9" fill="#9090b0">Binary subsets of {a, b, c} — each level: include or exclude one element</text>
+          <text x="20" y="242" font-family="'JetBrains Mono',monospace" font-size="9" fill="#4ecb8d">Depth = decisions made</text>
+          <text x="175" y="242" font-family="'JetBrains Mono',monospace" font-size="9" fill="#a78bfa">2^3 = 8 leaf nodes</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 04 — The Backtracking Template
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">04</span>
+    <h2>The Backtracking Template</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Generic pseudocode</h3>
+      <pre><code class="python">def backtrack(state, decisions):
+    if is_solution(state):
+        record_solution(state)
+        return
+
+    for choice in get_choices(state, decisions):
+        if is_valid(state, choice):     # prune
+            apply(state, choice)        # choose
+            backtrack(state, decisions)  # recurse
+            undo(state, choice)         # unchoose</code></pre>
+      <div class="card blue" style="margin-top:0.7em">
+        <p><strong style="color:var(--amber)">Pattern recognition:</strong> if a problem asks "find all configurations satisfying constraints" or "does a valid arrangement exist", backtracking is the first technique to consider.</p>
+      </div>
+    </div>
+    <div>
+      <h3>The three pillars</h3>
+      <div style="display:flex; flex-direction:column; gap:.35em; margin-top:.3em">
+        <div class="card green">
+          <h3>is_valid() — Pruning</h3>
+          <p>Rejects partial solutions that cannot lead to a valid complete solution. The earlier this fires, the more work is saved.</p>
+        </div>
+        <div class="card amber">
+          <h3>apply() / undo() — Choose / Unchoose</h3>
+          <p>State mutation and reversal. The candidate is modified in place and restored after recursion — no copying needed.</p>
+        </div>
+        <div class="card purple">
+          <h3>is_solution() — Base Case</h3>
+          <p>Recognises when a complete, valid solution has been built. Records or returns the result.</p>
+        </div>
+      </div>
+      <p style="margin-top:.5em; font-size:.48em; color:var(--muted)">Recursive backtracking uses the call stack to store state. Iterative backtracking uses an explicit stack — identical complexity, avoids stack overflow for very deep searches.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 05 — N-Queens Problem
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">05</span>
+    <h2>N-Queens Problem</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Problem statement</h3>
+      <p>Place N queens on an N x N chessboard so that no two queens attack each other — no shared row, column, or diagonal.</p>
+      <h3 style="margin-top:.3em">Strategy</h3>
+      <ul>
+        <li>Place queens one row at a time (row 0, 1, ..., N-1)</li>
+        <li>For each row, try each column position</li>
+        <li>Check constraints: no column conflict, no diagonal conflict</li>
+        <li>If no valid column exists, backtrack to the previous row</li>
+      </ul>
+      <h3 style="margin-top:.3em">Solution counts</h3>
+      <table>
+        <tr><th>N</th><th>Solutions</th><th>Unique (symmetry)</th></tr>
+        <tr><td>4</td><td>2</td><td>1</td></tr>
+        <tr><td>8</td><td>92</td><td>12</td></tr>
+        <tr><td>12</td><td>14,200</td><td>1,787</td></tr>
+        <tr><td>14</td><td>365,596</td><td>45,752</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Constraint checking</h3>
+      <pre><code class="python">def is_safe(board, row, col):
+    for prev_row in range(row):
+        prev_col = board[prev_row]
+        # same column
+        if prev_col == col:
+            return False
+        # same diagonal
+        if abs(prev_col - col) == row - prev_row:
+            return False
+    return True</code></pre>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:.4em; margin-top:.4em;">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <!-- 4x4 board -->
+          <defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+            <rect width="25" height="25" fill="#1a1a28"/><rect x="25" width="25" height="25" fill="#10101a"/>
+            <rect y="25" width="25" height="25" fill="#10101a"/><rect x="25" y="25" width="25" height="25" fill="#1a1a28"/>
+          </pattern></defs>
+          <rect width="200" height="200" fill="url(#grid)" stroke="#2a2a3a" stroke-width="1"/>
+          <!-- Solution: cols 1,3,0,2 -->
+          <text x="37" y="33" text-anchor="middle" font-size="22" fill="#f5a623">&#9819;</text>
+          <text x="87" y="83" text-anchor="middle" font-size="22" fill="#f5a623">&#9819;</text>
+          <text x="162" y="133" text-anchor="middle" font-size="22" fill="#f5a623">&#9819;</text>
+          <text x="112" y="183" text-anchor="middle" font-size="22" fill="#f5a623">&#9819;</text>
+          <text x="100" y="-4" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8888a8">4-Queens solution: [1, 3, 0, 2]</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 06 — N-Queens Pruning in Action
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">06</span>
+    <h2>N-Queens — Pruning in Action</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>4-Queens search trace</h3>
+      <pre><code class="text">Row 0: col 0 ✓
+  Row 1: col 0 ✗ (column)
+  Row 1: col 1 ✗ (diagonal)
+  Row 1: col 2 ✓
+    Row 2: col 0 ✗ (diagonal)
+    Row 2: col 1 ✗ (col conflict row 1)
+    Row 2: col 2 ✗ (col conflict row 1)
+    Row 2: col 3 ✗ (diagonal)
+    ← backtrack to row 1
+  Row 1: col 3 ✓
+    Row 2: col 0 ✗ (diagonal)
+    Row 2: col 1 ✓
+      Row 3: col 0 ✗  col 1 ✗  col 2 ✗  col 3 ✗
+      ← backtrack
+    Row 2: col 2 ✗ ...
+    ← backtrack to row 0
+Row 0: col 1 ✓
+  Row 1: col 3 ✓
+    Row 2: col 0 ✓
+      Row 3: col 2 ✓  ★ SOLUTION [1,3,0,2]</code></pre>
+    </div>
+    <div>
+      <h3>Efficiency</h3>
+      <div class="card amber" style="margin-top:.3em">
+        <h3>Brute force</h3>
+        <p>Check all N<sup>N</sup> arrangements — 4<sup>4</sup> = 256 for N=4</p>
+      </div>
+      <div class="card green" style="margin-top:.3em">
+        <h3>Backtracking</h3>
+        <p>Typically explores only a small fraction of the tree</p>
+      </div>
+      <table style="margin-top:.4em">
+        <tr><th>Approach</th><th>8-Queens nodes</th></tr>
+        <tr><td>Brute force (8<sup>8</sup>)</td><td>16,777,216</td></tr>
+        <tr><td>Backtracking</td><td>~114</td></tr>
+        <tr><td><strong style="color:var(--green)">Speedup</strong></td><td><strong style="color:var(--green)">~147,000x</strong></td></tr>
+      </table>
+      <div class="card blue" style="margin-top:.4em">
+        <p><strong style="color:var(--amber)">The power of pruning:</strong> each invalid placement at row <code>r</code> eliminates an entire subtree of <code>N<sup>(N-r-1)</sup></code> nodes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 07 — Sudoku Solver
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">07</span>
+    <h2>Sudoku Solver</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Problem</h3>
+      <p>Fill a 9x9 grid so every row, column, and 3x3 box contains digits 1–9 exactly once.</p>
+      <h3 style="margin-top:.3em">Backtracking approach</h3>
+      <pre><code class="python">def solve_sudoku(board):
+    cell = find_empty(board)
+    if cell is None:
+        return True           # solved
+
+    row, col = cell
+    for num in range(1, 10):
+        if is_valid(board, row, col, num):
+            board[row][col] = num
+            if solve_sudoku(board):
+                return True
+            board[row][col] = 0   # undo
+
+    return False  # trigger backtracking</code></pre>
+    </div>
+    <div>
+      <h3>Optimisations</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card green">
+          <h3>Naked singles</h3>
+          <p>If only one number is valid for a cell, place it immediately — no branching needed</p>
+        </div>
+        <div class="card amber">
+          <h3>Hidden singles</h3>
+          <p>If a number can only go in one cell in a row/col/box, place it</p>
+        </div>
+        <div class="card purple">
+          <h3>Constraint propagation (AC-3)</h3>
+          <p>Reduce domains before branching — eliminates options proactively</p>
+        </div>
+        <div class="card blue">
+          <h3>MRV heuristic</h3>
+          <p>Fill the cell with fewest remaining options first — fail faster</p>
+        </div>
+      </div>
+      <div class="card amber" style="margin-top:.4em">
+        <p>Sudoku with constraint propagation solves most newspaper puzzles <strong style="color:var(--green)">without any backtracking at all</strong>. Hard puzzles (17-clue minimum) still require search.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 08 — Subset Sum
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">08</span>
+    <h2>Subset Sum</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Problem</h3>
+      <p>Given a set S = {s<sub>1</sub>, s<sub>2</sub>, ..., s<sub>n</sub>} and a target T, find all subsets of S that sum to T.</p>
+      <h3 style="margin-top:.3em">Backtracking solution</h3>
+      <pre><code class="python">def subset_sum(nums, target, start, curr, res):
+    if target == 0:
+        res.append(curr[:])
+        return
+    if target < 0:
+        return                  # prune: overshot
+
+    for i in range(start, len(nums)):
+        curr.append(nums[i])
+        subset_sum(nums, target - nums[i],
+                   i + 1, curr, res)
+        curr.pop()              # backtrack</code></pre>
+    </div>
+    <div>
+      <h3>Pruning strategies</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card green">
+          <h3>Sort first</h3>
+          <p>If <code>nums[i] > remaining target</code>, skip all subsequent elements — they are larger</p>
+        </div>
+        <div class="card amber">
+          <h3>Skip duplicates</h3>
+          <p>If <code>nums[i] == nums[i-1]</code> at same recursion level, skip to avoid duplicate subsets</p>
+        </div>
+        <div class="card purple">
+          <h3>Running sum check</h3>
+          <p>Maintain sum of unused elements; if <code>remaining_sum &lt; target</code>, prune — impossible to reach target</p>
+        </div>
+      </div>
+      <div class="card blue" style="margin-top:.4em">
+        <p>Subset sum is <strong style="color:var(--red)">NP-complete</strong>. Backtracking with pruning is practical for moderate inputs (n &lt; ~40). For larger inputs, dynamic programming or meet-in-the-middle may be preferable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 09 — Permutations
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">09</span>
+    <h2>Permutations</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Generate all permutations of [1, 2, ..., n]</h3>
+      <pre><code class="python">def permute(nums, start, result):
+    if start == len(nums):
+        result.append(nums[:])
+        return
+
+    for i in range(start, len(nums)):
+        nums[start], nums[i] = nums[i], nums[start]
+        permute(nums, start + 1, result)
+        nums[start], nums[i] = nums[i], nums[start]</code></pre>
+      <h3 style="margin-top:.4em">State space</h3>
+      <ul>
+        <li>Level 0: n choices for position 0</li>
+        <li>Level 1: n-1 choices for position 1</li>
+        <li>Total leaves: <code>n!</code> (all valid — no pruning for plain permutations)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Permutations with constraints</h3>
+      <p>When constraints are added (e.g., "no two adjacent elements differ by more than 2"), pruning becomes effective:</p>
+      <ul>
+        <li>Check the constraint <strong style="color:var(--amber)">at each level</strong> before recursing</li>
+        <li>Invalid placements prune entire subtrees</li>
+        <li>Transforms O(n!) into something much smaller in practice</li>
+      </ul>
+      <h3 style="margin-top:.4em">Avoiding duplicates</h3>
+      <p>For inputs with repeated elements (e.g., [1, 1, 2]):</p>
+      <div class="card green" style="margin-top:.3em">
+        <ul>
+          <li>Sort the input first</li>
+          <li>At each recursion level, skip element <code>i</code> if <code>nums[i] == nums[i-1]</code> and <code>i-1</code> was not used at this level</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 10 — Combinations
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">10</span>
+    <h2>Combinations</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>C(n, k): choose k elements from n</h3>
+      <pre><code class="python">def combine(n, k, start, current, result):
+    if len(current) == k:
+        result.append(current[:])
+        return
+
+    # pruning: need (k - len(current)) more
+    # only proceed if enough elements remain
+    for i in range(start, n-(k-len(current))+2):
+        current.append(i)
+        combine(n, k, i + 1, current, result)
+        current.pop()</code></pre>
+      <div class="card blue" style="margin-top:.4em">
+        <p><strong style="color:var(--amber)">Pruning the search space:</strong> at each level, if not enough remaining elements to fill the combination, <strong style="color:var(--red)">stop immediately</strong>.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Combinations vs permutations</h3>
+      <table>
+        <tr><th>Property</th><th>Permutations</th><th>Combinations</th></tr>
+        <tr><td>Order matters</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Count</td><td>n! / (n-k)!</td><td>n! / (k!(n-k)!)</td></tr>
+        <tr><td>Start index</td><td>Fixed (swap)</td><td>Advances</td></tr>
+        <tr><td>Typical pruning</td><td>Constraint</td><td>Size + constraint</td></tr>
+      </table>
+      <div class="card green" style="margin-top:.5em">
+        <p>Combinations are a strict subset of the permutation search space. Using the <code>start</code> index avoids generating [1,2] and [2,1] separately.</p>
+      </div>
+      <p style="margin-top:.4em; font-size:.48em; color:var(--muted)">Without pruning: explore all 2<sup>n</sup> subsets, filter by size k. With pruning: only generate C(n,k) valid combinations directly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 11 — Graph Colouring
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">11</span>
+    <h2>Graph Colouring</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Problem</h3>
+      <p>Assign colours to vertices of an undirected graph such that no two adjacent vertices share the same colour, using at most k colours.</p>
+      <pre><code class="python">def graph_colour(graph, k, colours, vertex):
+    if vertex == len(graph):
+        return True             # all coloured
+
+    for c in range(1, k + 1):
+        if is_safe(graph, colours, vertex, c):
+            colours[vertex] = c
+            if graph_colour(graph, k, colours,
+                            vertex + 1):
+                return True
+            colours[vertex] = 0  # backtrack
+
+    return False</code></pre>
+    </div>
+    <div>
+      <h3>Applications</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card amber">
+          <h3>Map colouring</h3>
+          <p>Four colour theorem guarantees k=4 suffices for planar graphs</p>
+        </div>
+        <div class="card green">
+          <h3>Register allocation</h3>
+          <p>Compilers assign variables to CPU registers (graph = interference graph)</p>
+        </div>
+        <div class="card purple">
+          <h3>Scheduling</h3>
+          <p>Exams, tasks, or frequencies with conflict constraints</p>
+        </div>
+        <div class="card blue">
+          <h3>Timetabling</h3>
+          <p>Courses sharing students cannot be in the same slot</p>
+        </div>
+      </div>
+      <p style="margin-top:.4em; font-size:.48em; color:var(--muted)">The minimum k for which a valid colouring exists is the <strong style="color:var(--amber)">chromatic number</strong> X(G). Finding X(G) is NP-hard.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 12 — Hamiltonian Path & Cycle
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">12</span>
+    <h2>Hamiltonian Path &amp; Cycle</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Definitions</h3>
+      <div style="display:flex; gap:0.6em; align-items:baseline; font-size:0.52em; margin:0.2em 0;"><span style="font-family:'JetBrains Mono',monospace; color:var(--amber); min-width:10em; font-size:0.9em;">Hamiltonian path</span><span style="color:var(--text)">Visits every vertex exactly once</span></div>
+      <div style="display:flex; gap:0.6em; align-items:baseline; font-size:0.52em; margin:0.2em 0;"><span style="font-family:'JetBrains Mono',monospace; color:var(--amber); min-width:10em; font-size:0.9em;">Hamiltonian cycle</span><span style="color:var(--text)">A Hamiltonian path that returns to the starting vertex</span></div>
+      <pre style="margin-top:.4em"><code class="python">def hamiltonian(graph, path, visited):
+    if len(path) == len(graph):
+        if graph[path[-1]][path[0]]:
+            return True   # cycle found
+        return False
+
+    for v in range(len(graph)):
+        if not visited[v] and graph[path[-1]][v]:
+            visited[v] = True
+            path.append(v)
+            if hamiltonian(graph, path, visited):
+                return True
+            path.pop()
+            visited[v] = False   # backtrack
+
+    return False</code></pre>
+    </div>
+    <div>
+      <h3>Pruning strategies</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card green">
+          <h3>Degree check</h3>
+          <p>If an unvisited vertex has no unvisited neighbours, prune immediately</p>
+        </div>
+        <div class="card amber">
+          <h3>Connectivity check</h3>
+          <p>If removing the current vertex disconnects the unvisited subgraph, prune</p>
+        </div>
+        <div class="card purple">
+          <h3>Warnsdorff's heuristic</h3>
+          <p>Choose the vertex with fewest unvisited neighbours next — reduces branching factor</p>
+        </div>
+      </div>
+      <div class="card red" style="margin-top:.5em">
+        <p>Hamiltonian cycle is <strong style="color:var(--red)">NP-complete</strong>. No polynomial algorithm is known. Backtracking is the standard exact solver, but impractical for graphs with hundreds of vertices.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 13 — Constraint Satisfaction Problems
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">13</span>
+    <h2>Constraint Satisfaction Problems</h2>
+  </div>
+  <div class="cols cols-6040">
+    <div>
+      <h3>Formal definition</h3>
+      <p>A CSP is defined by three components:</p>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card amber">
+          <h3>Variables</h3>
+          <p>X<sub>1</sub>, X<sub>2</sub>, ..., X<sub>n</sub> — the unknowns to assign</p>
+        </div>
+        <div class="card green">
+          <h3>Domains</h3>
+          <p>D<sub>1</sub>, D<sub>2</sub>, ..., D<sub>n</sub> — possible values for each variable</p>
+        </div>
+        <div class="card purple">
+          <h3>Constraints</h3>
+          <p>Restrictions on which combinations of values are allowed</p>
+        </div>
+      </div>
+      <div class="card blue" style="margin-top:.5em">
+        <p><strong style="color:var(--amber)">Why CSP framing matters:</strong> provides a uniform representation — one algorithm solves many problems. Separates problem modelling from search strategy.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Examples as CSPs</h3>
+      <table>
+        <tr><th>Problem</th><th>Variables</th><th>Domains</th></tr>
+        <tr><td>N-Queens</td><td>Queen per row</td><td>{1..N}</td></tr>
+        <tr><td>Sudoku</td><td>Each cell</td><td>{1..9}</td></tr>
+        <tr><td>Graph colour</td><td>Vertex colours</td><td>{1..k}</td></tr>
+        <tr><td>Map colour</td><td>Region colours</td><td>{R,G,B,Y}</td></tr>
+        <tr><td>Scheduling</td><td>Task slots</td><td>Available slots</td></tr>
+      </table>
+      <p style="margin-top:.4em; font-size:.48em; color:var(--muted)">Constraints: N-Queens — no shared col/diag. Sudoku — row/col/box uniqueness. Graph colouring — adjacent vertices differ. Scheduling — no resource conflicts.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 14 — CSP Solving Strategies
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">14</span>
+    <h2>CSP Solving Strategies</h2>
+  </div>
+  <div class="cols cols-3" style="margin-top:.3em">
+    <div class="card amber">
+      <h3>Variable ordering</h3>
+      <ul>
+        <li><strong style="color:var(--amber)">MRV</strong> — Minimum Remaining Values: choose the variable with the smallest domain; "fail-first" principle</li>
+        <li><strong style="color:var(--amber)">Degree heuristic</strong> — choose the variable involved in the most constraints on unassigned variables</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Value ordering</h3>
+      <ul>
+        <li><strong style="color:var(--green)">LCV</strong> — Least Constraining Value: choose the value that rules out the fewest options for neighbours</li>
+        <li>Maximises remaining flexibility in the search</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h3>Inference</h3>
+      <ul>
+        <li><strong style="color:var(--purple)">Forward checking</strong> — after assignment, remove inconsistent values from neighbours</li>
+        <li><strong style="color:var(--purple)">AC-3</strong> — enforce arc consistency across all constraint arcs</li>
+        <li><strong style="color:var(--purple)">MAC</strong> — run AC-3 after every assignment</li>
+      </ul>
+    </div>
+  </div>
+  <h3 style="margin-top:.5em">Impact on search performance</h3>
+  <table>
+    <tr><th>Strategy</th><th>Effect</th></tr>
+    <tr><td>Plain backtracking</td><td>Explores many dead-end branches</td></tr>
+    <tr><td>+ MRV</td><td>Detects failures earlier — fail-first</td></tr>
+    <tr><td>+ Forward checking</td><td>Prunes domains proactively after each assignment</td></tr>
+    <tr><td>+ MAC (AC-3)</td><td>Near-optimal pruning; solves most CSPs efficiently</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 15 — Pruning Strategies
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">15</span>
+    <h2>Pruning Strategies</h2>
+  </div>
+  <p>Without pruning, backtracking degenerates to brute force. Effective pruning is the difference between practical and intractable.</p>
+  <div class="cols cols-2" style="margin-top:.3em">
+    <div>
+      <h3>Types of pruning</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card amber">
+          <h3>Feasibility pruning</h3>
+          <p>Reject partial solutions that already violate a constraint</p>
+        </div>
+        <div class="card green">
+          <h3>Bound pruning</h3>
+          <p>In optimisation, reject branches that cannot improve the best known solution</p>
+        </div>
+        <div class="card purple">
+          <h3>Symmetry breaking</h3>
+          <p>Avoid exploring configurations that are rotations/reflections of already-explored solutions</p>
+        </div>
+        <div class="card blue">
+          <h3>Dominance pruning</h3>
+          <p>Skip a partial solution if another is provably at least as good</p>
+        </div>
+        <div class="card red">
+          <h3>Constraint propagation</h3>
+          <p>Proactively reduce variable domains rather than waiting for conflicts</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Implementation guidelines</h3>
+      <ul>
+        <li>Check constraints <strong style="color:var(--amber)">as early as possible</strong> — after each decision, not only at leaf nodes</li>
+        <li>Maintain <strong style="color:var(--green)">incremental data structures</strong> — e.g., boolean arrays for used columns/diagonals in N-Queens</li>
+        <li><strong style="color:var(--purple)">Sort choices</strong> — try the most constrained or promising option first to find solutions (or contradictions) sooner</li>
+        <li><strong style="color:var(--blue)">Memoisation</strong> — cache results of subproblems when the state space has overlapping structure</li>
+      </ul>
+      <div class="card amber" style="margin-top:.5em">
+        <p><strong style="color:var(--amber)">Rule of thumb:</strong> the cost of the pruning check must be less than the cost of exploring the pruned subtree. Cheap checks that eliminate large subtrees are the sweet spot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 16 — Optimisation Techniques
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">16</span>
+    <h2>Optimisation Techniques</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Bit manipulation</h3>
+      <p>For problems with small state spaces (N-Queens with N &le; 30), represent sets as bitmasks for O(1) constraint checks.</p>
+      <pre><code class="python">def solve(row, cols, diag1, diag2, n):
+    if row == n:
+        return 1
+    count = 0
+    available = ((1 << n) - 1) \
+              & ~(cols | diag1 | diag2)
+    while available:
+        bit = available & (-available)
+        count += solve(row + 1,
+                       cols  | bit,
+                       (diag1 | bit) << 1,
+                       (diag2 | bit) >> 1, n)
+        available ^= bit
+    return count</code></pre>
+    </div>
+    <div>
+      <h3>Other techniques</h3>
+      <div style="display:flex; flex-direction:column; gap:.3em; margin-top:.3em">
+        <div class="card green">
+          <h3>Iterative deepening</h3>
+          <p>Combine DFS with depth limits. Useful when solution depth is unknown and memory is constrained.</p>
+        </div>
+        <div class="card amber">
+          <h3>Randomised restarts</h3>
+          <p>For hard CSPs, restart from a random initial state if the search stalls. Avoids unproductive subtrees.</p>
+        </div>
+        <div class="card purple">
+          <h3>Parallelism</h3>
+          <p>Distribute independent subtrees across threads. Work stealing for load balancing. Near-linear speedup for many-branch problems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 17 — Branch and Bound
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">17</span>
+    <h2>Branch and Bound</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Extending backtracking for optimisation</h3>
+      <p>Branch and bound adds a <strong style="color:var(--amber)">bounding function</strong> that estimates the best possible solution achievable from a partial solution.</p>
+      <h3 style="margin-top:.3em">How it works</h3>
+      <ul>
+        <li><strong style="color:var(--amber)">Branch</strong> — split the problem into subproblems (like backtracking)</li>
+        <li><strong style="color:var(--green)">Bound</strong> — compute an optimistic estimate for each subproblem</li>
+        <li><strong style="color:var(--red)">Prune</strong> — if the bound is worse than the best known solution, discard</li>
+      </ul>
+      <h3 style="margin-top:.3em">Example: 0/1 Knapsack</h3>
+      <ul>
+        <li><strong>Branch</strong> — for each item, include or exclude</li>
+        <li><strong>Bound</strong> — use fractional knapsack (greedy) as upper bound</li>
+        <li><strong>Prune</strong> — if upper bound &le; current best profit, skip subtree</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Backtracking vs branch and bound</h3>
+      <table>
+        <tr><th>Aspect</th><th>Backtracking</th><th>Branch &amp; Bound</th></tr>
+        <tr><td>Goal</td><td>Feasible solutions</td><td>Optimal solution</td></tr>
+        <tr><td>Pruning</td><td>Constraint violations</td><td>Bound vs best-so-far</td></tr>
+        <tr><td>Bounding fn</td><td>Not required</td><td>Essential</td></tr>
+        <tr><td>Problems</td><td>CSPs, enumeration</td><td>TSP, knapsack, scheduling</td></tr>
+      </table>
+      <div class="card blue" style="margin-top:.5em">
+        <p>Branch and bound is the standard approach for <strong style="color:var(--amber)">integer linear programming (ILP)</strong> solvers like CPLEX and Gurobi. The quality of the bounding function determines solver performance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 18 — Backtracking vs Brute Force
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">18</span>
+    <h2>Backtracking vs Brute Force</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card red">
+        <h3>Brute force</h3>
+        <p>Generate <strong>all</strong> possible candidates, then check each for validity. Always explores the full search space. Time: O(b<sup>d</sup>).</p>
+      </div>
+      <div class="card green" style="margin-top:.4em">
+        <h3>Backtracking</h3>
+        <p>Generate candidates <strong>incrementally</strong>, pruning invalid branches early. Explores only a fraction of the space. Worst case same; best case dramatically faster.</p>
+      </div>
+      <h3 style="margin-top:.5em">When backtracking does not help</h3>
+      <ul>
+        <li>All solutions are valid (plain enumeration) — no pruning opportunities</li>
+        <li>Constraints only checkable at leaf nodes — no early termination</li>
+        <li>Highly connected constraint graphs — pruning eliminates few branches</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Empirical comparison</h3>
+      <table>
+        <tr><th>Problem</th><th>Brute Force</th><th>Backtracking</th><th>Speedup</th></tr>
+        <tr><td>8-Queens</td><td>16,777,216</td><td>~114 nodes</td><td><strong style="color:var(--green)">~147,000x</strong></td></tr>
+        <tr><td>Sudoku (easy)</td><td>9<sup>51</sup></td><td>~100 nodes</td><td><strong style="color:var(--green)">astronomical</strong></td></tr>
+        <tr><td>Graph colour (sparse)</td><td>k<sup>n</sup></td><td>~O(k*n)</td><td><strong style="color:var(--green)">exponential</strong></td></tr>
+      </table>
+      <div class="card amber" style="margin-top:.5em">
+        <p>Backtracking is <strong style="color:var(--amber)">not a different complexity class</strong> — it is a constant-factor (often enormous) improvement within the same exponential class. For polynomial-time solutions, you need a fundamentally different algorithm.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 19 — Classic Problem Complexities
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">19</span>
+    <h2>Classic Problem Complexities</h2>
+  </div>
+  <h3>Time complexities</h3>
+  <table>
+    <tr><th>Problem</th><th>Worst Case</th><th>Typical with Pruning</th><th>Notes</th></tr>
+    <tr><td>N-Queens</td><td>O(N!)</td><td>Much less in practice</td><td>One queen per row eliminates N<sup>N</sup></td></tr>
+    <tr><td>Sudoku</td><td>O(9<sup>81</sup>)</td><td>Near-instant for most</td><td>Constraint propagation dominates</td></tr>
+    <tr><td>Subset Sum</td><td>O(2<sup>n</sup>)</td><td>Depends on target</td><td>DP may be better for small targets</td></tr>
+    <tr><td>Permutations</td><td>O(n!)</td><td>O(n!) unconstrained</td><td>No pruning for plain case</td></tr>
+    <tr><td>Combinations C(n,k)</td><td>O(C(n,k))</td><td>O(C(n,k))</td><td>Size pruning only</td></tr>
+    <tr><td>Graph Colouring</td><td>O(k<sup>n</sup>)</td><td>Problem-dependent</td><td>Sparse graphs prune well</td></tr>
+    <tr><td>Hamiltonian Cycle</td><td>O(n!)</td><td>Problem-dependent</td><td>NP-complete</td></tr>
+    <tr><td>TSP (B&amp;B)</td><td>O(n!)</td><td>Manageable for n&lt;25</td><td>Bounding fn quality is key</td></tr>
+  </table>
+  <div class="cols cols-2" style="margin-top:.4em">
+    <div class="card blue">
+      <h3>Space complexity</h3>
+      <p>Recursive backtracking: O(d) stack space where d = max recursion depth. Storing all solutions: O(S * d) where S = number of solutions.</p>
+    </div>
+    <div class="card amber">
+      <h3>Practical takeaway</h3>
+      <p>Backtracking complexity is <strong style="color:var(--amber)">problem-instance dependent</strong>. Analyse the constraint structure, not just the worst case, to predict real-world performance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE 20 — Summary & Further Reading
+══════════════════════════════════════════════════════════════════ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr">
+    <span class="tag">20</span>
+    <h2>Summary &amp; Further Reading</h2>
+  </div>
+  <div class="cols cols-2">
+    <div>
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>Backtracking is <strong style="color:var(--amber)">brute force with pruning</strong> — build candidates incrementally, abandon invalid branches early</li>
+        <li>The <strong style="color:var(--green)">state space tree</strong> is the mental model: every node is a decision, pruning removes subtrees</li>
+        <li>The generic template — <strong style="color:var(--purple)">choose, check, recurse, unchoose</strong> — applies to N-Queens, Sudoku, graph colouring, and hundreds of other problems</li>
+        <li><strong style="color:var(--blue)">CSPs</strong> unify many backtracking applications under one formal framework</li>
+        <li>Variable/value ordering (MRV, LCV) and constraint propagation (AC-3, MAC) dramatically reduce search effort</li>
+        <li><strong style="color:var(--amber)">Pruning quality</strong> is the single biggest performance lever</li>
+        <li><strong style="color:var(--green)">Branch and bound</strong> extends backtracking to optimisation with bounding functions</li>
+        <li>Backtracking does not change the complexity class — but the constant factor is often the difference between seconds and centuries</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Recommended reading</h3>
+      <table>
+        <tr><th>Source</th><th>Description</th></tr>
+        <tr><td><strong style="color:var(--amber)">Cormen et al.</strong></td><td><em>Introduction to Algorithms</em> (CLRS) — backtracking and branch-and-bound</td></tr>
+        <tr><td><strong style="color:var(--amber)">Skiena</strong></td><td><em>The Algorithm Design Manual</em> — practical strategies and war stories</td></tr>
+        <tr><td><strong style="color:var(--amber)">Russell &amp; Norvig</strong></td><td><em>AI: A Modern Approach</em> — CSP chapter with AC-3, MRV, MAC</td></tr>
+        <tr><td><strong style="color:var(--amber)">Knuth</strong></td><td><em>TAOCP Vol. 4</em> — exhaustive enumeration and Dancing Links</td></tr>
+        <tr><td><strong style="color:var(--amber)">LeetCode</strong></td><td><a href="https://leetcode.com/tag/backtracking/" style="color:var(--blue)">Backtracking tag</a> — curated practice problems</td></tr>
+        <tr><td><strong style="color:var(--amber)">Sedgewick</strong></td><td><em>Algorithms</em> — permutations, combinations, constraint search</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  transition: 'fade',
+  transitionSpeed: 'fast',
+  controls: true,
+  progress: true,
+  center: false,
+  width: 1100,
+  height: 900,
+  margin: 0.01,
+  plugins: [RevealHighlight],
+  highlight: { theme: 'monokai' }
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>
